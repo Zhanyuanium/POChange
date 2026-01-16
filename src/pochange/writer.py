@@ -2,7 +2,6 @@
 
 import pandas as pd
 from pathlib import Path
-from typing import Optional
 
 
 def write_diff_report(diff_data: pd.DataFrame, output_path: str | Path) -> None:

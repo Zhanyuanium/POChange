@@ -2,7 +2,7 @@
 
 import pytest
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from src.pochange.comparator import (
     find_common_rows,

@@ -2,7 +2,7 @@
 
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 
 # 必需的列名（支持大小写变化）

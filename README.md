@@ -14,7 +14,7 @@
 
 ### 前置要求
 
-- Python >= 3.13
+- Python >= 3.10
 - [uv](https://github.com/astral-sh/uv) - 快速 Python 包管理器
 
 ### 安装步骤
