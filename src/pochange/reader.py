@@ -14,6 +14,14 @@ REQUIRED_COLUMNS = {
     "rsd": "RSD",
 }
 
+# 额外需要保留的列（F、H、I、J列）
+EXTRA_COLUMNS = {
+    "vendor/supplying plant": "Vendor/Supplying Plant",
+    "mrp controller": "MRP Controller",
+    "plant": "Plant",
+    "destination": "Destination",
+}
+
 # 键列（用于唯一标识一行）
 KEY_COLUMNS = ["Purchasing Document", "Item", "Material"]
 
@@ -23,12 +31,13 @@ def normalize_column_name(col: str) -> str:
     return col.strip().lower()
 
 
-def find_column_mapping(df: pd.DataFrame) -> Dict[str, str]:
+def find_column_mapping(df: pd.DataFrame, include_extra: bool = True) -> Dict[str, str]:
     """
     查找并映射列名
     
     Args:
         df: 输入的 DataFrame
+        include_extra: 是否包含额外列（F、H、I、J列）
         
     Returns:
         映射字典：{标准化列名: 原始列名}
@@ -51,6 +60,12 @@ def find_column_mapping(df: pd.DataFrame) -> Dict[str, str]:
             f"缺少必需的列: {', '.join(missing_columns)}. "
             f"可用列: {', '.join(df.columns.tolist())}"
         )
+    
+    # 添加额外列（如果存在）
+    if include_extra:
+        for normalized_name, standard_name in EXTRA_COLUMNS.items():
+            if normalized_name in df_columns_normalized:
+                normalized_to_original[standard_name] = df_columns_normalized[normalized_name]
     
     return normalized_to_original
 
@@ -204,9 +219,9 @@ def read_weekly_report(file_path: str | Path) -> pd.DataFrame:
             if df_temp.empty:
                 continue
             
-            # 查找列映射
+            # 查找列映射（包括额外列）
             try:
-                column_mapping = find_column_mapping(df_temp)
+                column_mapping = find_column_mapping(df_temp, include_extra=True)
             except ValueError:
                 # 这个工作表没有所需的列，尝试下一个
                 continue

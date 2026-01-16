@@ -4,9 +4,14 @@ import re
 import sys
 from pathlib import Path
 from datetime import datetime
+import pandas as pd
 
 from src.pochange.reader import read_weekly_report
-from src.pochange.comparator import find_common_rows, calculate_differences
+from src.pochange.comparator import (
+    find_common_rows,
+    calculate_differences,
+    find_new_orders,
+)
 from src.pochange.writer import write_diff_report
 from src.pochange.config import get_config, Config
 
@@ -90,9 +95,21 @@ def main():
         if len(common_keys) == 0:
             print("警告: 没有找到共同行，将生成空的差异报告")
         
-        # 计算差异
+        # 计算差异（只记录有变化的行）
         print("计算差异...")
         diff_data = calculate_differences(df1, df2, common_keys)
+        print(f"  找到 {len(diff_data)} 行有变化的记录")
+        
+        # 查找新增订单
+        print("查找新增订单...")
+        new_orders = find_new_orders(df1, df2)
+        print(f"  找到 {len(new_orders)} 个新增订单")
+        
+        # 合并差异数据和新增订单
+        if len(new_orders) > 0:
+            diff_data = pd.concat([diff_data, new_orders], ignore_index=True)
+        else:
+            new_orders = pd.DataFrame()  # 确保变量已定义
         
         # 生成输出路径
         output_filename = generate_output_filename(
@@ -105,7 +122,7 @@ def main():
         write_diff_report(diff_data, output_path)
         
         print(f"完成! 差异报告已保存到: {output_path}")
-        print(f"  共 {len(diff_data)} 条差异记录")
+        print(f"  共 {len(diff_data)} 条记录（{len(diff_data) - len(new_orders)} 条变更记录，{len(new_orders)} 条新增订单）")
         
     except FileNotFoundError as e:
         print(f"错误: {e}", file=sys.stderr)

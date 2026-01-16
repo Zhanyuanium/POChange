@@ -79,13 +79,31 @@ Excel 文件必须包含以下列（列名大小写不敏感）：
 
 差异报告将保存为 Excel 文件，包含以下列：
 
+### 键列
 - `Purchasing Document` - 采购文档号
 - `Item` - 项目编号
 - `Material` - 物料编号
-- `Order Quantity (Original)` - 原始订单数量（来自第一个文件）
-- `Order Quantity (Change)` - 订单数量变化（新值 - 旧值，正负数值）
-- `RSD (Original)` - 原始要求发货日期（来自第一个文件）
-- `RSD (Change)` - 日期变化（天数差，正负整数）
+
+### 额外信息列（来自原表格的 F、H、I、J 列）
+- `Vendor/Supplying Plant` - 供应商/供应工厂
+- `MRP Controller` - MRP 控制器
+- `Plant` - 工厂
+- `Destination` - 目的地
+
+### 差异列
+- `Order Quantity (Original)` - 原始订单数量（来自第一个文件，新增订单为 0）
+- `Order Quantity (Change)` - 订单数量变化（新值 - 旧值，正负数值；新增订单为新值）
+- `RSD (Original)` - 原始要求发货日期（来自第一个文件，新增订单为新值）
+- `RSD (Change)` - 日期变化（天数差，正负整数；新增订单为 0）
+
+### 输出规则
+
+1. **只记录有变化的行**：如果 `Order Quantity` 和 `RSD` 都没有变化，该行不会出现在差异报告中
+2. **新增订单**：后一个周报中新增的订单（不在第一个周报中）也会被记录：
+   - `Order Quantity (Original)` = 0（从无到有）
+   - `Order Quantity (Change)` = 新值（实际数量）
+   - `RSD (Original)` = 新值（这是它一开始的日期）
+   - `RSD (Change)` = 0（无从变化）
 
 输出文件名格式：`diff_YYYY-MM-DD_to_YYYY-MM-DD.xlsx`（基于输入文件名中的日期自动生成）
 
@@ -131,8 +149,9 @@ uv run python main.py --file1 "examples/OpenPO 1.9.2026.XLSX" --file2 "examples/
 程序将：
 1. 读取两个周报文件
 2. 找出同时出现在两个文件中的行
-3. 计算 `Order Quantity` 和 `RSD` 的变化
-4. 生成差异报告到 `diff/diff_2026-01-09_to_2026-01-16.xlsx`
+3. 计算 `Order Quantity` 和 `RSD` 的变化（只记录有变化的行）
+4. 识别新增订单（只在第二个文件中出现的订单）
+5. 生成差异报告到 `diff/diff_2026-01-09_to_2026-01-16.xlsx`，包含变更记录和新增订单
 
 ## 开发
 
