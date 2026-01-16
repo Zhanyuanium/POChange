@@ -9,14 +9,16 @@ wheels/
 # Virtual environments
 .venv
 
+# Input directory
+Weekly Reports/
+
 # Output directory
-diff/
+Weekly Differences/
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
-examples/
 
 # IDE
 .vscode/

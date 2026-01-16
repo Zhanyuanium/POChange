@@ -1,9 +1,7 @@
 """主程序入口"""
 
-import re
 import sys
 from pathlib import Path
-from datetime import datetime
 import pandas as pd
 
 from src.pochange.reader import read_weekly_report
@@ -14,36 +12,7 @@ from src.pochange.comparator import (
 )
 from src.pochange.writer import write_diff_report
 from src.pochange.config import get_config, Config
-
-
-def extract_date_from_filename(filename: str) -> str | None:
-    """
-    从文件名中提取日期
-    
-    支持的格式：
-    - OpenPO 1.9.2026.XLSX -> 2026-01-09
-    - OpenPO 1.16.2026.XLSX -> 2026-01-16
-    
-    Args:
-        filename: 文件名
-        
-    Returns:
-        日期字符串（YYYY-MM-DD）或 None
-    """
-    # 匹配 M.D.YYYY 格式（如 1.9.2026）
-    pattern = r"(\d{1,2})\.(\d{1,2})\.(\d{4})"
-    match = re.search(pattern, filename)
-    
-    if match:
-        month, day, year = match.groups()
-        try:
-            # 验证日期有效性
-            date_obj = datetime(int(year), int(month), int(day))
-            return date_obj.strftime("%Y-%m-%d")
-        except ValueError:
-            return None
-    
-    return None
+from src.pochange.utils import extract_date_from_filename
 
 
 def generate_output_filename(file1: str, file2: str, config: Config) -> str:
@@ -62,15 +31,15 @@ def generate_output_filename(file1: str, file2: str, config: Config) -> str:
         return config.output_filename
     
     # 尝试从文件名提取日期
-    date1 = extract_date_from_filename(Path(file1).name)
-    date2 = extract_date_from_filename(Path(file2).name)
+    date1 = extract_date_from_filename(Path(file1).name, return_string=True)
+    date2 = extract_date_from_filename(Path(file2).name, return_string=True)
     
     if date1 and date2:
-        return f"diff_{date1}_to_{date2}.xlsx"
+        return f"Diff {date1} to {date2}.xlsx"
     else:
-        # 如果无法提取日期，使用时间戳
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        return f"diff_{timestamp}.xlsx"
+        raise ValueError(
+            f"无法从文件名中提取日期: '{Path(file1).name}' 或 '{Path(file2).name}'，无法生成输出文件名。"
+        )
 
 
 def main():

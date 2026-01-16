@@ -31,10 +31,25 @@ uv sync
 
 ## 使用方法
 
-### 命令行参数方式
+### 默认方式（推荐）
+
+如果不提供任何参数，程序会自动在 `Weekly Reports` 目录中查找最新的两个周报文件（按文件名中的日期排序）：
 
 ```bash
-uv run python main.py --file1 "examples/OpenPO 1.9.2026.XLSX" --file2 "examples/OpenPO 1.16.2026.XLSX"
+uv run python main.py
+```
+
+程序会自动：
+- 在 `Weekly Reports` 目录中查找所有 Excel 文件（.xlsx, .XLSX, .xls, .XLS）
+- 从文件名中提取日期（支持格式：`OpenPO M.D.YYYY.XLSX`）
+- 选择最新的两个文件（较旧的作为 file1，较新的作为 file2）
+
+### 命令行参数方式
+
+如果需要指定特定的文件：
+
+```bash
+uv run python main.py --file1 "Weekly Reports/OpenPO 1.9.2026.XLSX" --file2 "Weekly Reports/OpenPO 1.16.2026.XLSX"
 ```
 
 ### 配置文件方式
@@ -42,9 +57,9 @@ uv run python main.py --file1 "examples/OpenPO 1.9.2026.XLSX" --file2 "examples/
 1. 创建 `config.yaml` 文件：
 
 ```yaml
-input_file1: "examples/OpenPO 1.9.2026.XLSX"
-input_file2: "examples/OpenPO 1.16.2026.XLSX"
-output_dir: "diff"
+input_file1: "Weekly Reports/OpenPO 1.9.2026.XLSX"
+input_file2: "Weekly Reports/OpenPO 1.16.2026.XLSX"
+output_dir: "Weekly Differences"
 ```
 
 2. 运行程序：
@@ -55,13 +70,15 @@ uv run python main.py
 
 ### 参数说明
 
-- `--file1`: 第一个周报文件路径（必需）
-- `--file2`: 第二个周报文件路径（必需）
-- `--output-dir`: 输出目录（默认: `diff`）
+- `--file1`: 第一个周报文件路径（可选，未提供时自动查找）
+- `--file2`: 第二个周报文件路径（可选，未提供时自动查找）
+- `--output-dir`: 输出目录（默认: `Weekly Differences`）
 - `--output-filename`: 输出文件名（可选，默认基于日期自动生成）
 - `--config`: 配置文件路径（默认: `config.yaml`）
 
-**优先级**: 命令行参数 > 配置文件 > 默认值
+**优先级**: 命令行参数 > 配置文件 > 自动查找最新文件
+
+**注意**: 如果使用自动查找功能，请确保 `Weekly Reports` 目录中至少有两个包含有效日期的 Excel 文件。
 
 ## 输入文件格式
 
@@ -137,13 +154,13 @@ uv run pytest tests/ -v
 ## 示例
 
 假设有两个周报文件：
-- `examples/OpenPO 1.9.2026.XLSX` - 第一周的数据
-- `examples/OpenPO 1.16.2026.XLSX` - 第二周的数据
+- `Weekly Reports/OpenPO 1.9.2026.XLSX` - 第一周的数据
+- `Weekly Reports/OpenPO 1.16.2026.XLSX` - 第二周的数据
 
 运行分析：
 
 ```bash
-uv run python main.py --file1 "examples/OpenPO 1.9.2026.XLSX" --file2 "examples/OpenPO 1.16.2026.XLSX"
+uv run python main.py --file1 "Weekly Reports/OpenPO 1.9.2026.XLSX" --file2 "Weekly Reports/OpenPO 1.16.2026.XLSX"
 ```
 
 程序将：
@@ -151,7 +168,7 @@ uv run python main.py --file1 "examples/OpenPO 1.9.2026.XLSX" --file2 "examples/
 2. 找出同时出现在两个文件中的行
 3. 计算 `Order Quantity` 和 `RSD` 的变化（只记录有变化的行）
 4. 识别新增订单（只在第二个文件中出现的订单）
-5. 生成差异报告到 `diff/diff_2026-01-09_to_2026-01-16.xlsx`，包含变更记录和新增订单
+5. 生成差异报告到 `Weekly Differences/Diff 2026-01-09 to 2026-01-16.xlsx`，包含变更记录和新增订单
 
 ## 开发
 
