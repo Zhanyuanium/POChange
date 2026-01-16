@@ -184,6 +184,52 @@ uv add <package-name>
 uv add --dev <package-name>
 ```
 
+## 编译为二进制程序
+
+本项目支持使用 [Nuitka](https://nuitka.net/) 将 Python 代码编译为独立的可执行文件。
+
+### 前置要求
+
+- Python >= 3.10
+- 已安装项目依赖（包括开发依赖）
+
+### 编译步骤
+
+1. 确保已安装开发依赖（包括 Nuitka）：
+
+```bash
+uv sync
+```
+
+2. 在 Windows 下编译为单文件可执行程序：
+
+```bash
+nuitka --mode=onefile --output-filename=POChange.exe main.py
+```
+
+这将在当前目录生成 `POChange.exe` 文件，该文件包含了所有依赖，可以在没有安装 Python 的 Windows 系统上直接运行。
+
+### 编译选项说明
+
+- `--mode=onefile`: 生成单文件可执行程序，所有依赖都打包在一个文件中
+- `--output-filename=POChange.exe`: 指定输出文件名
+
+### 使用编译后的程序
+
+编译完成后，可以直接运行生成的 `POChange.exe`：
+
+```bash
+POChange.exe --file1 "Weekly Reports/OpenPO 1.9.2026.XLSX" --file2 "Weekly Reports/OpenPO 1.16.2026.XLSX"
+```
+
+或者使用默认方式（自动查找最新文件）：
+
+```bash
+POChange.exe
+```
+
+所有命令行参数和配置文件方式与运行 Python 脚本时完全相同。
+
 ## 许可证
 
 本项目采用 MIT 许可证。
